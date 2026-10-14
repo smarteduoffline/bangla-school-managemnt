@@ -1,0 +1,19 @@
+{
+  "name": "স্মার্ট স্কুল ম্যানেজমেন্ট",
+  "short_name": "স্মার্ট স্কুল",
+  "description": "বাংলা অফলাইন স্কুল ম্যানেজমেন্ট",
+  "lang": "bn",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#1457c5",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
