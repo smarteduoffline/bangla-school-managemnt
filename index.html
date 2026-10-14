@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1457c5">
+  <meta name="description" content="বাংলা অফলাইন স্কুল ম্যানেজমেন্টের প্রাথমিক সংস্করণ">
+  <link rel="manifest" href="manifest.json">
+  <title>স্মার্ট স্কুল ম্যানেজমেন্ট</title>
+  <style>
+    :root { font-family: system-ui, "Noto Sans Bengali", sans-serif; color:#182230; background:#f4f7fb; }
+    * { box-sizing:border-box; }
+    body { margin:0; }
+    header { background:linear-gradient(120deg,#1769e0,#173b9c); color:white; padding:22px 16px; }
+    header h1 { margin:0 0 5px; font-size:1.45rem; }
+    header p { margin:0; opacity:.9; font-size:.92rem; }
+    main { width:min(960px,100%); margin:0 auto; padding:16px; }
+    .status { margin:0 0 14px; padding:10px 12px; border-radius:10px; background:#e4f7eb; color:#125c30; font-size:.9rem; }
+    .card { background:white; border:1px solid #e1e7f0; border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:0 3px 12px #162c4a0a; }
+    h2 { margin:0 0 14px; font-size:1.12rem; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    label { display:block; font-size:.92rem; font-weight:600; margin-bottom:5px; }
+    input, select { width:100%; padding:11px 12px; border:1px solid #cbd5e1; border-radius:9px; background:white; font:inherit; }
+    .field { min-width:0; }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    button, .file-label { border:0; border-radius:9px; padding:10px 13px; font:inherit; font-weight:600; cursor:pointer; background:#1457c5; color:white; }
+    button.secondary, .file-label { background:#eaf0fa; color:#173b76; }
+    button.danger { background:#b42318; color:white; }
+    button:focus, input:focus, select:focus { outline:2px solid #78a8ff; outline-offset:1px; }
+    .toolbar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .toolbar input { max-width:360px; }
+    .count { color:#475467; font-size:.9rem; }
+    .student { border:1px solid #e4eaf2; border-radius:10px; padding:12px; margin:9px 0; }
+    .student strong { display:block; font-size:1rem; margin-bottom:5px; }
+    .student p { margin:3px 0; color:#475467; font-size:.92rem; overflow-wrap:anywhere; }
+    .student .actions { margin-top:10px; }
+    .empty { text-align:center; color:#667085; padding:22px 8px; }
+    footer { text-align:center; color:#667085; padding:10px 16px 28px; font-size:.83rem; }
+    .small { font-size:.85rem; color:#667085; line-height:1.5; }
+    #backupFile { display:none; }
+    @media (max-width:600px) { .grid { grid-template-columns:1fr; } main { padding:12px; } header { padding:19px 14px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>স্মার্ট স্কুল ম্যানেজমেন্ট</h1>
+    <p>বাংলা • অফলাইন-প্রথম সংস্করণ • শিক্ষার্থী ব্যবস্থাপনা</p>
+  </header>
+  <main>
+    <div class="status" id="connectionStatus">অ্যাপ প্রস্তুত হচ্ছে…</div>
+
+    <section class="card">
+      <h2 id="formTitle">নতুন শিক্ষার্থী ভর্তি</h2>
+      <form id="studentForm">
+        <input type="hidden" id="studentId">
+        <div class="grid">
+          <div class="field">
+            <label for="name">শিক্ষার্থীর নাম *</label>
+            <input id="name" required maxlength="120" autocomplete="name" placeholder="পূর্ণ নাম">
+          </div>
+          <div class="field">
+            <label for="className">শ্রেণি *</label>
+            <select id="className" required>
+              <option value="">শ্রেণি নির্বাচন</option>
+              <option>প্লে</option><option>নার্সারি</option><option>প্রথম</option>
+              <option>দ্বিতীয়</option><option>তৃতীয়</option><option>চতুর্থ</option>
+              <option>পঞ্চম</option><option>ষষ্ঠ</option><option>সপ্তম</option>
+              <option>অষ্টম</option><option>নবম</option><option>দশম</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="roll">রোল নম্বর</label>
+            <input id="roll" inputmode="numeric" maxlength="20" placeholder="যেমন: ০১">
+          </div>
+          <div class="field">
+            <label for="guardianPhone">অভিভাবকের ফোন</label>
+            <input id="guardianPhone" type="tel" inputmode="tel" maxlength="20" placeholder="ফোন নম্বর">
+          </div>
+        </div>
+        <div class="actions">
+          <button type="submit" id="saveButton">শিক্ষার্থী সংরক্ষণ</button>
+          <button type="button" class="secondary" id="resetButton">ফর্ম পরিষ্কার</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <h2 style="margin:0">শিক্ষার্থীর তালিকা</h2>
+        <span class="count" id="studentCount">মোট ০ জন</span>
+      </div>
+      <input id="search" type="search" placeholder="নাম, শ্রেণি বা রোল দিয়ে খুঁজুন" aria-label="শিক্ষার্থী খুঁজুন">
+      <div id="studentList"><div class="empty">এখনও কোনো শিক্ষার্থী যোগ করা হয়নি।</div></div>
+    </section>
+
+    <section class="card">
+      <h2>ডেটা ব্যাকআপ ও রিস্টোর</h2>
+      <p class="small">ব্যাকআপ ফাইল নিরাপদ স্থানে রাখুন। রিস্টোর করলে বর্তমান তালিকার সঙ্গে ব্যাকআপের তথ্য যোগ হবে; একই আইডি থাকলে আগের রেকর্ড প্রতিস্থাপিত হবে।</p>
+      <div class="actions">
+        <button type="button" id="exportButton">ব্যাকআপ ডাউনলোড</button>
+        <label class="file-label" for="backupFile">ব্যাকআপ থেকে রিস্টোর</label>
+        <input id="backupFile" type="file" accept=".json,application/json">
+      </div>
+    </section>
+  </main>
+  <footer>প্রাথমিক পরীক্ষামূলক সংস্করণ • ডেটা এই ডিভাইসের ব্রাউজারে থাকে</footer>
+  <script src="app.js"></script>
+</body>
+</html>
