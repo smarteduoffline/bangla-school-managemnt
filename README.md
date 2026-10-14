@@ -1,2 +1,2 @@
-# bangla-school-managemnt
+# bangla-school-management
 Offline School Management App
