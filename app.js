@@ -176,8 +176,7 @@
     } catch (error) {
       console.error("Student save failed:", error);
       status.textContent = "সংরক্ষণ করা যায়নি: " + (error?.message || "অজানা সমস্যা");
-      alert("শিক্ষার্থীর তথ্য সংরক্ষণ করা যায়নি।
-" + (error?.message || "আবার চেষ্টা করুন।"));
+      alert("শিক্ষার্থীর তথ্য সংরক্ষণ করা যায়নি।\n" + (error?.message || "আবার চেষ্টা করুন。"));
     } finally {
       saveButton.disabled = false;
     }

@@ -1,29 +1,55 @@
-const CACHE_NAME = "bangla-school-pwa-v2";
+const CACHE_PREFIX = "bangla-school-pwa-";
+const CACHE_NAME = `${CACHE_PREFIX}v3`;
 const APP_FILES = ["./", "./index.html", "./app.js", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    // Cache each asset independently so a missing optional file (such as an icon)
+    // does not prevent the service worker from installing.
+    await Promise.all(APP_FILES.map(async (file) => {
+      try {
+        await cache.add(file);
+      } catch (error) {
+        console.warn(`Could not pre-cache ${file}:`, error);
+      }
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-    ))
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME)
+        .map((key) => caches.delete(key))
+    );
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-      if (response && response.ok && new URL(event.request.url).origin === self.location.origin) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+  const request = event.request;
+  if (request.method !== "GET") return;
+
+  const requestUrl = new URL(request.url);
+  if (requestUrl.origin !== self.location.origin) return;
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    const response = await fetch(request);
+    if (response.ok && response.status === 200 && response.type === "basic") {
+      try {
+        await cache.put(request, response.clone());
+      } catch (error) {
+        console.warn(`Could not cache ${request.url}:`, error);
       }
-      return response;
-    }))
-  );
+    }
+    return response;
+  })());
 });
